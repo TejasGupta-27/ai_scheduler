@@ -16,7 +16,7 @@ async fn main() {
     let matches = setup_cli();
 
     // Handle commands from the user
-    if matches.contains_id("start") {
+    if matches.get_flag("start") {
         info!("Starting AI Process Scheduler...");
 
         // Monitor system metrics
@@ -25,7 +25,7 @@ async fn main() {
         // Start the AI scheduling system
         scheduler::start_scheduling().await;
 
-    } else if matches.contains_id("status") {
+    } else if matches.get_flag("status") {
         info!("Displaying system status...");
         monitor::display_system_status();
     }

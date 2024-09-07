@@ -11,7 +11,7 @@ pub async fn start_monitoring() {
 }
 
 pub fn display_system_status() {
-    println!("Flags processed.");
+   
     // Display a summary of system status (CPU, memory, and process load)
     // Implement as needed for status output
 }
