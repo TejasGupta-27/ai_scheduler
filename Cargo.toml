@@ -1,0 +1,12 @@
+[package]
+name = "ai_scheduler"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+tokio = { version = "1", features = ["full"] }  # For async tasks
+clap = "4.0"  # CLI argument parsing
+log = "0.4"   # Logging
+env_logger = "0.9"
+rand = "0.8"  # For RL agent exploration
+procfs = "0.16.0"
