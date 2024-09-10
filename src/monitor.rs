@@ -1,17 +1,35 @@
-use procfs::process::all_processes;
+mod scheduler;
+mod rl_agent;
+mod monitor;
+mod cli;
+
+use cli::setup_cli;
 use log::info;
 
-pub async fn start_monitoring() {
-   
-    let all_procs = all_processes().unwrap();
-    for proc in all_procs {
-        let stat = proc.unwrap().stat().unwrap();
-        info!("PID: {}, CPU: {}, Memory: {}", stat.pid, stat.utime, stat.rss);
-    }
-}
+#[tokio::main]
+async fn main() {
+    // Initialize logging
+    env_logger::init();
 
-pub fn display_system_status() {
-   
-    // Display a summary of system status (CPU, memory, and process load)
-    // Implement as needed for status output
+    // Setup command line arguments
+    let matches = setup_cli();
+
+    // Handle commands from the user
+    if matches.get_flag("start") {
+        info!("Starting AI Process Scheduler...");
+
+        // Initialize and train the RL agent
+        rl_agent::initialize_agent().await;
+        rl_agent::train_agent().await;
+
+        // Monitor system metrics
+        monitor::start_monitoring().await;
+
+        // Start the AI scheduling system
+        scheduler::start_scheduling().await;
+
+    } else if matches.get_flag("status") {
+        info!("Displaying system status...");
+        monitor::display_system_status();
+    }
 }

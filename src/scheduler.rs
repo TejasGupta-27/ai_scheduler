@@ -1,5 +1,6 @@
 use crate::rl_agent::QLearningAgent;
 use log::info;
+use sysinfo::{System, SystemExt, ProcessExt};
 
 pub async fn start_scheduling() {
     let mut agent = QLearningAgent::new();
@@ -20,25 +21,45 @@ pub async fn start_scheduling() {
         // Update the RL agent with the reward and next state
         let next_state = get_system_state().await;
         agent.update_q_value(system_state, action, reward, next_state);
-
+    
         // Continue scheduling in a loop
         tokio::time::sleep(tokio::time::Duration::from_millis(500)).await;
     }
 }
 
-// Placeholder for fetching system state
+// Fetch system state
 async fn get_system_state() -> u64 {
-    // Aggregate metrics like CPU, memory, and processes
-    0  // Replace with real metrics
+    let system = System::new_all();
+    let cpu_usage = system.global_cpu_info().cpu_usage();
+    let total_memory = system.global_memory().total_memory();
+    let used_memory = total_memory - system.global_memory().free_memory();
+
+    // Create a unique state representation
+    (cpu_usage as u64) * 1000000 + (used_memory / 1024)
 }
 
-// Placeholder for taking an action (e.g., adjust process priority)
+// Take action
 async fn take_action(action: u64) {
-    info!("Taking action {}", action);
-    // Use system APIs (e.g., sched_setattr or setpriority) to adjust resources
+    info!("Taking action: {}", action);
+    
+    // Simulate adjusting process priority or resource allocation
+    match action % 3 {
+        0 => info!("Increasing CPU priority for critical tasks"),
+        1 => info!("Decreasing CPU priority for non-critical tasks"),
+        2 => info!("Adjusting memory allocation for tasks"),
+        _ => info!("Unknown action"),
+    }
 }
 
-// Placeholder for calculating reward (e.g., process completion, CPU efficiency)
+// Calculate reward
 async fn calculate_reward() -> f64 {
-    0.0  // Replace with real reward calculation logic
+    let system = System::new_all();
+    let cpu_usage = system.global_cpu_info().cpu_usage();
+    let total_memory = system.global_memory().total_memory();
+    let free_memory = system.global_memory().free_memory();
+    let used_memory = total_memory - free_memory;
+
+    // Reward calculation example:
+    // Reward is inversely proportional to CPU usage and memory usage
+    100.0 - (cpu_usage + (used_memory / 1024) as f64)
 }

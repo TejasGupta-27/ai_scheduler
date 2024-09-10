@@ -10,3 +10,4 @@ log = "0.4"   # Logging
 env_logger = "0.9"
 rand = "0.8"  # For RL agent exploration
 procfs = "0.16.0"
+sysinfo = "0.21"
