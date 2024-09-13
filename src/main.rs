@@ -4,7 +4,6 @@ mod monitor;
 mod cli;
 mod utils;
 
-use cli::setup_cli;
 use log::info;
 
 #[tokio::main]
@@ -13,7 +12,7 @@ async fn main() {
     env_logger::init();
 
     // Setup command line arguments
-    let matches = setup_cli();
+    let matches = cli::setup_cli();
 
     // Handle commands from the user
     if matches.get_flag("start") {
