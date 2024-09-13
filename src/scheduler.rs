@@ -1,6 +1,6 @@
 use crate::rl_agent::QLearningAgent;
 use log::info;
-use sysinfo::{System, SystemExt, ProcessExt};
+use sysinfo::{System, SystemExt, ProcessorExt};
 
 pub async fn start_scheduling() {
     let mut agent = QLearningAgent::new();
@@ -30,9 +30,10 @@ pub async fn start_scheduling() {
 // Fetch system state
 async fn get_system_state() -> u64 {
     let system = System::new_all();
-    let cpu_usage = system.global_cpu_info().cpu_usage();
-    let total_memory = system.global_memory().total_memory();
-    let used_memory = total_memory - system.global_memory().free_memory();
+    // system.refresh_all();
+    let cpu_usage = system.global_processor_info().cpu_usage();
+    let total_memory = system.total_memory();
+    let used_memory = total_memory - system.free_memory();
 
     // Create a unique state representation
     (cpu_usage as u64) * 1000000 + (used_memory / 1024)
@@ -54,12 +55,12 @@ async fn take_action(action: u64) {
 // Calculate reward
 async fn calculate_reward() -> f64 {
     let system = System::new_all();
-    let cpu_usage = system.global_cpu_info().cpu_usage();
-    let total_memory = system.global_memory().total_memory();
-    let free_memory = system.global_memory().free_memory();
+    let cpu_usage = system.global_processor_info().cpu_usage();
+    let total_memory = system.total_memory();
+    let free_memory = system.free_memory();
     let used_memory = total_memory - free_memory;
 
     // Reward calculation example:
     // Reward is inversely proportional to CPU usage and memory usage
-    100.0 - (cpu_usage + (used_memory / 1024) as f64)
+    100.0 - (cpu_usage as f64 + (used_memory / 1024) as f64)
 }

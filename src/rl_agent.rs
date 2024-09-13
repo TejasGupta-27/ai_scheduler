@@ -39,16 +39,16 @@ impl QLearningAgent {
     }
 
     pub fn update_q_value(&mut self, state: u64, action: u64, reward: f64, next_state: u64) {
-        let q_value = self.q_table.entry((state, action)).or_insert(0.0);
-        
         // Compute the maximum Q-value for the next state
         let max_q_next = (0..10)
             .map(|a| self.q_table.get(&(next_state, a)).unwrap_or(&0.0))
             .fold(f64::NEG_INFINITY, |a, &b| a.max(b));
         
         // Update the Q-value
+        let q_value = self.q_table.entry((state, action)).or_insert(0.0);
         *q_value += self.alpha * (reward + self.gamma * max_q_next - *q_value);
     }
+    
 }
 
 pub async fn initialize_agent() {
