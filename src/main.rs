@@ -14,18 +14,27 @@ async fn main() {
     // Setup command line arguments
     let matches = cli::setup_cli();
 
-    // Handle commands from the user
-    if matches.get_flag("start") {
-        info!("Starting AI Process Scheduler...");
+    // Handle subcommands from the user
+    match matches.subcommand() {
+        Some(("start", sub_matches)) => {
+            info!("Starting AI Process Scheduler...");
 
-        // Monitor system metrics
-        monitor::start_monitoring().await;
+            // Initialize and train the RL agent
+            rl_agent::initialize_agent().await;
+            rl_agent::train_agent().await;
 
-        // Start the AI scheduling system
-        scheduler::start_scheduling().await;
+            // Monitor system metrics
+            monitor::start_monitoring().await;
 
-    } else if matches.get_flag("status") {
-        info!("Displaying system status...");
-        monitor::display_system_status();
+            // Start the AI scheduling system
+            scheduler::start_scheduling().await;
+        }
+        Some(("status", _)) => {
+            info!("Displaying system status...");
+            monitor::display_system_status();
+        }
+        _ => {
+            eprintln!("No valid subcommand provided.");
+        }
     }
 }

@@ -1,35 +1,26 @@
-use crate::scheduler;
-use crate::rl_agent;
-use crate::monitor;
-use crate::cli;
-
-use cli::setup_cli;
+// src/monitor.rs
 use log::info;
+use sysinfo::{System, SystemExt, ProcessorExt};
 
-#[tokio::main]
-async fn main() {
-    // Initialize logging
-    env_logger::init();
+pub async fn start_monitoring() {
+    info!("System monitoring started");
+    tokio::spawn(async move {
+        loop {
+            display_system_status();
+            tokio::time::sleep(tokio::time::Duration::from_secs(5)).await;
+        }
+    });
+}
 
-    // Setup command line arguments
-    let matches = setup_cli();
-
-    // Handle commands from the user
-    if matches.get_flag("start") {
-        info!("Starting AI Process Scheduler...");
-
-        // Initialize and train the RL agent
-        rl_agent::initialize_agent().await;
-        rl_agent::train_agent().await;
-
-        // Monitor system metrics
-        monitor::start_monitoring().await;
-
-        // Start the AI scheduling system
-        scheduler::start_scheduling().await;
-
-    } else if matches.get_flag("status") {
-        info!("Displaying system status...");
-        monitor::display_system_status();
-    }
+pub fn display_system_status() {
+    let mut system = System::new_all();
+    system.refresh_all();
+    
+    let cpu_usage = system.global_processor_info().cpu_usage();
+    let total_memory = system.total_memory();
+    let used_memory = total_memory - system.free_memory();
+    
+    info!("System Status:");
+    info!("CPU Usage: {:.2}%", cpu_usage);
+    info!("Memory Usage: {}/{} MB", used_memory / 1024 / 1024, total_memory / 1024 / 1024);
 }
