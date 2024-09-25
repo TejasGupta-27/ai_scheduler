@@ -62,13 +62,14 @@ pub async fn initialize_agent() {
 pub async fn train_agent() {
     info!("Training RL agent...");
     let mut agent = QLearningAgent::new();
-    for episode in 0..1000 { // Number of training episodes
+    for episode in 0..10 { // Number of training episodes
         info!("Training episode: {}", episode);
         let mut state = get_system_state().await;
         loop {
             let action = agent.choose_action(state);
             take_action(action).await;
             let reward = calculate_reward().await;
+            println!("{}",reward);
             let next_state = get_system_state().await;
             agent.update_q_value(state, action, reward, next_state);
             state = next_state;
